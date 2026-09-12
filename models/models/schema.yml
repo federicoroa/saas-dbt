@@ -1,0 +1,98 @@
+version: 2
+
+sources:
+  - name: warm-melody-330414
+    schema: saas_dbt_portfolio_raw
+    description: "Raw SaaS data imported into BigQuery."
+    tables:
+      - name: raw_customers
+        description: "Raw customer profile records."
+      - name: raw_subscriptions
+        description: "Raw subscription plan and MRR records."
+      - name: raw_payments
+        description: "Raw payment transaction details."
+      - name: raw_usage
+        description: "Raw feature interaction logs."
+      - name: raw_support_tickets
+        description: "Raw customer support ticket logs."
+
+models:
+  - name: stg_customers
+    description: "Cleaned and staged customer profile records."
+    columns:
+      - name: customer_id
+        description: "Primary key for customers."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_subscriptions
+    description: "Cleaned subscription plan and MRR records."
+    columns:
+      - name: subscription_id
+        description: "Primary key for subscriptions."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key linking to stg_customers."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+
+  - name: stg_payments
+    description: "Cleaned payment transaction records."
+    columns:
+      - name: payment_id
+        description: "Primary key for payments."
+        tests:
+          - unique
+          - not_null
+      - name: subscription_id
+        description: "Foreign key linking to stg_subscriptions."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_subscriptions')
+              field: subscription_id
+      - name: customer_id
+        description: "Foreign key linking to stg_customers."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+
+  - name: stg_usage
+    description: "Cleaned product feature usage logs."
+    columns:
+      - name: usage_id
+        description: "Primary key for usage events."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key linking to stg_customers."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+
+  - name: stg_support_tickets
+    description: "Cleaned customer support ticket records."
+    columns:
+      - name: ticket_id
+        description: "Primary key for support tickets."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key linking to stg_customers."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
