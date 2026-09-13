@@ -16,7 +16,6 @@ Follows the **Medallion Architecture** (Staging → Intermediate → Marts) for 
 ## Technical Features
 
 * **Incremental Logic:** Configured with `materialized='incremental'`, composite `unique_key`, and `on_schema_change='append_new_columns'` for high-volume event logs.
-* **SCD Type 2:** Uses dbt `snapshots` (`strategy='check'`) to track historical customer attribute changes over time.
 * **Modular Schema Tests:** Separate `schema.yml` files per directory asserting `unique`, `not_null`, `relationships`, and `accepted_values` constraints.
 
 ---
