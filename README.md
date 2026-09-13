@@ -23,7 +23,5 @@ Follows the **Medallion Architecture** (Staging → Intermediate → Marts) for 
 ## Quickstart
 
 1. **Clone Repo & Install Dependencies:**
-   ```bash
-   git clone [https://github.com/federicoroa/saas-dbt.git](https://github.com/federicoroa/saas-dbt.git)
-   cd saas-dbt
-   pip install dbt-bigquery
+   git clone https://github.com/federicoroa/saas-dbt.git
+
