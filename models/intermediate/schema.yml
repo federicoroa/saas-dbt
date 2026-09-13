@@ -1,0 +1,86 @@
+version: 2
+
+models:
+  - name: int_customer_mrr_summary
+    description: "Intermediate rollup aggregating active MRR, subscription counts, and active plan details per customer."
+    columns:
+      - name: customer_id
+        description: "Primary key for customer MRR aggregation."
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+
+      - name: total_mrr
+        description: "Sum of monthly recurring revenue across all active subscriptions."
+        tests:
+          - not_null
+
+      - name: active_subscriptions_count
+        description: "Total count of active subscriptions currently held by the customer."
+
+  - name: int_customer_support_summary
+    description: "Intermediate rollup calculating support ticket volumes, open issue counts, resolution speeds, and CSAT averages per customer."
+    columns:
+      - name: customer_id
+        description: "Primary key for support metrics aggregation."
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+
+      - name: total_tickets_count
+        description: "Total volume of support tickets submitted by the customer."
+
+      - name: open_tickets_count
+        description: "Number of tickets currently in an open or pending state."
+
+      - name: avg_csat_score
+        description: "Average customer satisfaction rating across closed support tickets."
+
+  - name: int_customer_payments_summary
+    description: "Intermediate rollup aggregating historical payments, succeeded/failed transaction counts, and lifetime revenue per customer."
+    columns:
+      - name: customer_id
+        description: "Primary key for customer payment aggregation."
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+
+      - name: total_paid_amount
+        description: "Cumulative historical revenue successfully processed from the customer."
+
+      - name: failed_payments_count
+        description: "Count of failed transaction attempts (useful for dunning and churn risk detection)."
+
+  - name: int_customer_usage_daily
+    description: "Intermediate daily product activity model aggregating usage counts, feature events, and engagement durations per customer and feature."
+    columns:
+      - name: daily_usage_id
+        description: "Surrogate key composed of customer_id, event_date, and feature_name."
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: "Foreign key linking daily engagement back to stg_customers."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+
+      - name: event_date
+        description: "Date when feature interactions took place."
+        tests:
+          - not_null
+
+      - name: total_usage_count
+        description: "Sum of feature interactions on the given event_date."
