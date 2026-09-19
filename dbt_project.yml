@@ -2,7 +2,7 @@
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
-name: 'my_new_project'
+name: 'saas_dbt'
 version: '1.0.0'
 config-version: 2
 
@@ -38,17 +38,12 @@ clean-targets:         # directories to be removed by `dbt clean`
 # Configuring models by directory layer
 models:
   saas_dbt:
-    # Staging Layer: Clean 1:1 view abstractions over raw tables
     staging:
       +materialized: view
       +schema: staging
-
-    # Intermediate Layer: Rollups and aggregations
     intermediate:
       +materialized: table
       +schema: intermediate
-
-    # Marts Layer: BI-ready analytics tables
     marts:
       +materialized: table
       +schema: marts
