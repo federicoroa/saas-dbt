@@ -13,13 +13,25 @@ models:
               to: ref('stg_customers')
               field: customer_id
 
-      - name: total_mrr
+      - name: current_mrr
         description: "Sum of monthly recurring revenue across all active subscriptions."
         tests:
           - not_null
 
       - name: active_subscriptions_count
         description: "Total count of active subscriptions currently held by the customer."
+
+      - name: first_subscription_date
+        description: "Date of the customer's earliest subscription start."
+
+      - name: latest_subscription_start_date
+        description: "Most recent subscription start date for the customer."
+
+      - name: latest_subscription_end_date
+        description: "Most recent subscription end date for the customer, if any subscription has ended."
+
+      - name: has_active_subscription
+        description: "Flag indicating whether the customer currently holds at least one active subscription."
 
   - name: int_customer_support_summary
     description: "Intermediate rollup calculating support ticket volumes, open issue counts, resolution speeds, and CSAT averages per customer."
@@ -39,11 +51,14 @@ models:
       - name: open_tickets_count
         description: "Number of tickets currently in an open or pending state."
 
+      - name: high_priority_tickets_count
+        description: "Number of tickets flagged as high priority or urgent."
+
       - name: avg_csat_score
-        description: "Average customer satisfaction rating across closed support tickets."
+        description: "Average customer satisfaction rating across the customer's tickets."
 
   - name: int_customer_payments_summary
-    description: "Intermediate rollup aggregating historical payments, succeeded/failed transaction counts, and lifetime revenue per customer."
+    description: "Intermediate rollup aggregating historical payments and lifetime revenue per customer."
     columns:
       - name: customer_id
         description: "Primary key for customer payment aggregation."
@@ -54,11 +69,17 @@ models:
               to: ref('stg_customers')
               field: customer_id
 
-      - name: total_paid_amount
+      - name: lifetime_value
         description: "Cumulative historical revenue successfully processed from the customer."
 
-      - name: failed_payments_count
-        description: "Count of failed transaction attempts (useful for dunning and churn risk detection)."
+      - name: total_successful_payments
+        description: "Count of successful payment transactions."
+
+      - name: first_payment_date
+        description: "Date of the customer's first successful payment."
+
+      - name: last_payment_date
+        description: "Date of the customer's most recent successful payment."
 
   - name: int_customer_usage_daily
     description: "Intermediate daily product activity model aggregating usage counts, feature events, and engagement durations per customer and feature."
@@ -82,5 +103,14 @@ models:
         tests:
           - not_null
 
+      - name: feature_name
+        description: "Name of the product feature the usage events belong to."
+
       - name: total_usage_count
         description: "Sum of feature interactions on the given event_date."
+
+      - name: total_duration_seconds
+        description: "Sum of time spent (in seconds) on the feature on the given event_date."
+
+      - name: total_events_count
+        description: "Count of raw usage events rolled up into this daily/customer/feature row."
