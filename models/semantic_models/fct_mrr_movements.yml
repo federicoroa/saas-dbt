@@ -1,0 +1,109 @@
+semantic_models:
+  - name: mrr_movements
+    description: "Semantic model over the monthly customer MRR movement bridge (new logo, expansion, contraction, churn, reactivation, unchanged)."
+    model: ref('fct_mrr_movements')
+    defaults:
+      agg_time_dimension: movement_month
+
+    entities:
+      - name: mrr_movement
+        type: primary
+        expr: customer_month_id
+      - name: customer
+        type: foreign
+        expr: customer_id
+
+    dimensions:
+      - name: movement_month
+        type: time
+        expr: month
+        type_params:
+          time_granularity: month
+      - name: movement_type
+        type: categorical
+
+    measures:
+      - name: mrr_movement_amount
+        description: "Dollar delta in MRR for this customer-month row."
+        agg: sum
+        expr: mrr_movement_amount
+      - name: mrr
+        description: "Customer's total MRR in this month."
+        agg: sum
+        expr: mrr
+      - name: mrr_movement_customer_count
+        description: "Count of distinct customers with a movement row."
+        agg: count_distinct
+        expr: customer_id
+
+metrics:
+  - name: net_new_mrr
+    description: "Net change in MRR across all customers for a given month (sum of all movement types, including negative churn/contraction)."
+    label: "Net New MRR"
+    type: simple
+    type_params:
+      measure: mrr_movement_amount
+
+  - name: new_logo_mrr
+    description: "MRR contributed by brand-new customers in a given month."
+    label: "New Logo MRR"
+    type: simple
+    type_params:
+      measure: mrr_movement_amount
+    filter: |
+      {{ Dimension('mrr_movement__movement_type') }} = 'new_logo'
+
+  - name: expansion_mrr
+    description: "MRR gained from existing customers upgrading in a given month."
+    label: "Expansion MRR"
+    type: simple
+    type_params:
+      measure: mrr_movement_amount
+    filter: |
+      {{ Dimension('mrr_movement__movement_type') }} = 'expansion'
+
+  - name: contraction_mrr
+    description: "MRR lost from existing customers downgrading in a given month."
+    label: "Contraction MRR"
+    type: simple
+    type_params:
+      measure: mrr_movement_amount
+    filter: |
+      {{ Dimension('mrr_movement__movement_type') }} = 'contraction'
+
+  - name: churned_mrr
+    description: "MRR lost to churn in a given month."
+    label: "Churned MRR"
+    type: simple
+    type_params:
+      measure: mrr_movement_amount
+    filter: |
+      {{ Dimension('mrr_movement__movement_type') }} = 'churn'
+
+  - name: reactivation_mrr
+    description: "MRR recovered from customers reactivating after a gap in a given month."
+    label: "Reactivation MRR"
+    type: simple
+    type_params:
+      measure: mrr_movement_amount
+    filter: |
+      {{ Dimension('mrr_movement__movement_type') }} = 'reactivation'
+
+  - name: churned_customers
+    description: "Count of distinct customers who churned in a given month."
+    label: "Churned Customers"
+    type: simple
+    type_params:
+      measure: mrr_movement_customer_count
+    filter: |
+      {{ Dimension('mrr_movement__movement_type') }} = 'churn'
+
+  - name: gross_new_mrr
+    description: "MRR added from new logos and expansion combined, before subtracting any losses."
+    label: "Gross New MRR"
+    type: derived
+    type_params:
+      expr: "new_logo_mrr + expansion_mrr"
+      metrics:
+        - name: new_logo_mrr
+        - name: expansion_mrr
