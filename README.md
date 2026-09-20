@@ -1,6 +1,13 @@
-# SaaS Analytics Pipeline (dbt + BigQuery)
+# SaaS Analytics Pipeline (dbt + BigQuery + Tableau)
 
 A modular, production-grade data transformation pipeline built with **dbt Core** and **Google BigQuery**, modeling SaaS business operations (MRR rollups, LTV, support health, and daily product engagement).
+
+---
+
+## Live Dashboards
+
+* **[SaaS MRR & Revenue Concentration](https://public.tableau.com/app/profile/federico.roa.rubinstein/viz/SaaSMRRRevenueConcentrationDashboard/Dashboard1)** — monthly MRR bridge (`fct_mrr_movements`) and customer revenue concentration (`dim_customer`).
+* **[Product Engagement Overview](https://public.tableau.com/app/profile/federico.roa.rubinstein/viz/ProductEngagementOverview/Dashboard1)** — monthly feature usage trends (`fct_daily_usage`).
 
 ---
 
